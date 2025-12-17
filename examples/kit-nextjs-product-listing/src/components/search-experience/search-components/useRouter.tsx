@@ -1,26 +1,21 @@
 'use client';
 import { useCallback } from 'react';
-import { useRouter as useNextRouter } from 'next/router';
+import { useRouter as useNextRouter, usePathname } from 'next/navigation';
 import { useDebouncedCallback } from './useDebounce';
 
 export const useRouter = () => {
   const router = useNextRouter();
+  const pathname = usePathname();
   const setRouterQuery = useCallback(
     (value: string) => {
-      if (value) {
-        router.query.q = value;
-      } else {
-        delete router.query.q;
-      }
-
       // Construct the URL with current pathname to avoid exposing rewrites
-      const currentPath = router.asPath.split('?')[0];
-      const queryString = router.query.q ? `?q=${router.query.q}` : '';
+      const currentPath = pathname.split('?')[0];
+      const queryString = value ? `?q=${value}` : '';
       const asPath = currentPath + queryString;
 
-      router.replace({ query: router.query }, asPath, { shallow: true });
+      router.replace(asPath);
     },
-    [router]
+    [router, pathname]
   );
 
   const debouncedSetRouterQuery = useDebouncedCallback(setRouterQuery);
@@ -36,5 +31,5 @@ export const useRouter = () => {
     [debouncedSetRouterQuery, setRouterQuery]
   );
 
-  return { setRouterQuery: setQuery, router };
+  return { setRouterQuery: setQuery };
 };

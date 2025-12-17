@@ -1,6 +1,7 @@
 'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { useSitecore } from '@sitecore-content-sdk/nextjs';
 import { useInfiniteSearch } from '@sitecore-content-sdk/nextjs/search';
 import { cn } from 'lib/utils';
@@ -48,8 +49,9 @@ export const LoadMore = (props: SearchExperienceProps) => {
   });
 
   const sendEvent = useEvent({ query: searchQuery, uid: props.rendering.uid });
+  const searchParams = useSearchParams();
 
-  const { setRouterQuery, router } = useRouter();
+  const { setRouterQuery } = useRouter();
 
   useEffect(() => {
     if (isSuccess) {
@@ -58,23 +60,21 @@ export const LoadMore = (props: SearchExperienceProps) => {
   }, [isSuccess, sendEvent]);
 
   useEffect(() => {
-    if (!router.isReady) return;
-
-    const routerQuery = (router.query.q as string) || '';
+    const routerQuery = (searchParams.get('q') as string) || '';
 
     setSearchQuery(routerQuery);
-  }, [router.isReady, inputValue, router.query.q]);
+  }, [inputValue, searchParams]);
 
   useEffect(() => {
-    if (!router.isReady || isEditing || isPreview) return;
+    if (isEditing || isPreview) return;
 
     if (!isInitializedRef.current) {
       // Enable the search and set the input value from the router query on initial load
       setSearchEnabled(true);
-      setInputValue(router.query.q as string);
+      setInputValue(searchParams.get('q') as string);
       isInitializedRef.current = true;
     }
-  }, [router.isReady, router.query.q, isEditing, isPreview]);
+  }, [searchParams, isEditing, isPreview]);
 
   const onSearchChange = useCallback(
     (value: string, debounced: boolean = true) => {
