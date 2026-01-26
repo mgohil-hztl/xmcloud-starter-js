@@ -38,7 +38,6 @@ import * as SubscriptionBanner from 'src/components/subscription-banner/Subscrip
 import * as subscriptionbannerprops from 'src/components/subscription-banner/subscription-banner.props';
 import * as subscriptionbannerdictionary from 'src/components/subscription-banner/subscription-banner.dictionary';
 import * as StructuredData from 'src/components/structured-data/StructuredData';
-import * as schemagenerators from 'src/components/structured-data/schema-generators';
 import * as SiteMetadata from 'src/components/site-metadata/SiteMetadata';
 import * as sitemetadataprops from 'src/components/site-metadata/site-metadata.props';
 import * as SecondaryNavigation from 'src/components/secondary-navigation/SecondaryNavigation';
@@ -167,7 +166,6 @@ export const componentMap = new Map<string, NextjsContentSdkComponent>([
   ['SubscriptionBanner', { ...SubscriptionBanner, componentType: 'client' }],
   ['subscription-banner', { ...subscriptionbannerprops, ...subscriptionbannerdictionary }],
   ['StructuredData', { ...StructuredData, componentType: 'client' }],
-  ['schema-generators', { ...schemagenerators }],
   ['SiteMetadata', { ...SiteMetadata }],
   ['site-metadata', { ...sitemetadataprops }],
   ['SecondaryNavigation', { ...SecondaryNavigation, componentType: 'client' }],
