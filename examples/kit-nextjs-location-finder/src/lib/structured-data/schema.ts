@@ -113,18 +113,23 @@ export function generateWebSiteSchema(
   siteUrl: string,
   description?: string
 ): JsonLdValue {
-  return {
+  const schema: { [key: string]: JsonLdValue } = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteName,
     url: siteUrl,
-    description,
     potentialAction: {
       '@type': 'SearchAction',
       target: `${siteUrl}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
-    },
-  } as JsonLdValue;
+    } as JsonLdValue,
+  };
+
+  if (description) {
+    schema.description = description as JsonLdValue;
+  }
+
+  return schema as JsonLdValue;
 }
 
 export function generateOrganizationSchema(
@@ -133,14 +138,22 @@ export function generateOrganizationSchema(
   logo?: string,
   description?: string
 ): JsonLdValue {
-  return {
+  const schema: { [key: string]: JsonLdValue } = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name,
     url,
-    logo,
-    description,
-  } as JsonLdValue;
+  };
+
+  if (logo) {
+    schema.logo = logo as JsonLdValue;
+  }
+
+  if (description) {
+    schema.description = description as JsonLdValue;
+  }
+
+  return schema as JsonLdValue;
 }
 
 export function generateWebPageSchema(
@@ -149,14 +162,19 @@ export function generateWebPageSchema(
   description?: string,
   locale?: string
 ): JsonLdValue {
-  return {
+  const schema: { [key: string]: JsonLdValue } = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: pageName,
-    description,
     url: pageUrl,
     inLanguage: locale || 'en',
-  } as JsonLdValue;
+  };
+
+  if (description) {
+    schema.description = description as JsonLdValue;
+  }
+
+  return schema as JsonLdValue;
 }
 
 export function generatePlaceSchema(
@@ -169,18 +187,32 @@ export function generatePlaceSchema(
   latitude?: number,
   longitude?: number
 ): JsonLdValue {
+  const addressObj: { [key: string]: JsonLdValue } = {
+    '@type': 'PostalAddress',
+    addressCountry: country || 'US',
+  };
+
+  if (streetAddress) {
+    addressObj.streetAddress = streetAddress as JsonLdValue;
+  }
+
+  if (city) {
+    addressObj.addressLocality = city as JsonLdValue;
+  }
+
+  if (region) {
+    addressObj.addressRegion = region as JsonLdValue;
+  }
+
+  if (postalCode) {
+    addressObj.postalCode = postalCode as JsonLdValue;
+  }
+
   const schema: { [key: string]: JsonLdValue } = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress,
-      addressLocality: city,
-      addressRegion: region,
-      postalCode,
-      addressCountry: country || 'US',
-    } as JsonLdValue,
+    address: addressObj as JsonLdValue,
   };
 
   if (latitude && longitude) {
@@ -206,10 +238,19 @@ export function generateProductSchema(
     '@context': 'https://schema.org',
     '@type': 'Product',
     name,
-    description,
-    image,
-    url,
   };
+
+  if (description) {
+    schema.description = description as JsonLdValue;
+  }
+
+  if (image) {
+    schema.image = image as JsonLdValue;
+  }
+
+  if (url) {
+    schema.url = url as JsonLdValue;
+  }
 
   if (price) {
     schema.offers = {
@@ -253,8 +294,11 @@ export function generateReviewSchema(
       '@type': 'Person',
       name: authorName,
     } as JsonLdValue,
-    reviewBody,
   };
+
+  if (reviewBody) {
+    schema.reviewBody = reviewBody as JsonLdValue;
+  }
 
   if (ratingValue !== undefined) {
     schema.reviewRating = {
@@ -273,11 +317,16 @@ export function generateBreadcrumbListSchema(
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: breadcrumbs.map((crumb, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: crumb.name,
-      item: crumb.url,
-    })),
+    itemListElement: breadcrumbs.map((crumb, index) => {
+      const item: { [key: string]: JsonLdValue } = {
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+      };
+      if (crumb.url) {
+        item.item = crumb.url as JsonLdValue;
+      }
+      return item as JsonLdValue;
+    }),
   } as JsonLdValue;
 }
