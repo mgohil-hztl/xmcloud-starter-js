@@ -11,6 +11,8 @@ import components from '.sitecore/component-map';
 import Providers from 'src/Providers';
 import { NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
+import { StructuredData } from '@/components/structured-data/StructuredData';
+import { generateWebPageSchema } from '@/lib/structured-data/schema';
 
 // Configure dynamic rendering to avoid SSR issues with client-side hooks
 // This ensures all pages are rendered on-demand rather than pre-rendered at build time
@@ -29,6 +31,10 @@ type PageProps = {
 export default async function Page({ params, searchParams }: PageProps) {
   const { site, locale, path } = await params;
   const draft = await draftMode();
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : '');
 
   // Set site and locale to be available in src/i18n/request.ts for fetching the dictionary
   setRequestLocale(`${site}_${locale}`);
@@ -58,9 +64,31 @@ export default async function Page({ params, searchParams }: PageProps) {
     components,
   );
 
+  const routeFields = page.layout.sitecore.route?.fields as RouteFields;
+  const pageTitle = routeFields?.Title?.value?.toString() || 'Page';
+  const pageDescription = routeFields?.ogDescription?.value?.toString();
+
+  const pathSegments = path && path.length > 0 ? path.join('/') : '';
+  const urlPath = `/${site}/${locale}${pathSegments ? `/${pathSegments}` : ''}`;
+  const fullUrl = baseUrl ? `${baseUrl}${urlPath}` : undefined;
+
+  const webPageSchema = generateWebPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    url: fullUrl,
+    inLanguage: locale.replace('_', '-'),
+    ...(baseUrl && {
+      isPartOf: {
+        name: 'Solterra & Co.',
+        url: baseUrl,
+      },
+    }),
+  });
+
   return (
     <NextIntlClientProvider>
       <Providers page={page} componentProps={componentProps}>
+        <StructuredData id="webpage-schema" data={webPageSchema} />
         <Layout page={page} />
       </Providers>
     </NextIntlClientProvider>
