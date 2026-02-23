@@ -170,7 +170,7 @@ export const componentMap = new Map<string, NextjsContentSdkComponent>([
   ['ColumnSplitter', { ...ColumnSplitter }],
   ['SubscriptionBanner', { ...SubscriptionBanner, componentType: 'client' }],
   ['subscription-banner', { ...subscriptionbannerprops, ...subscriptionbannerdictionary }],
-  ['StructuredData', { ...StructuredData, componentType: 'client' }],
+  ['StructuredData', { ...StructuredData }],
   ['SiteMetadata', { ...SiteMetadata }],
   ['site-metadata', { ...sitemetadataprops }],
   ['SecondaryNavigation', { ...SecondaryNavigation, componentType: 'client' }],
